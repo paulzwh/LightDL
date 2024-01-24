@@ -75,6 +75,9 @@ def main_runner(main_worker: Callable[[int, Namespace], Any], args: Namespace):
 
 
 def init_main_worker(local_rank: int, args: Namespace):
+    """
+    necessary initialization for main_worker
+    """
     if args.distributed:
         args.rank = args.node_rank * args.ngpus_per_node + local_rank
         dist.init_process_group(backend="nccl", init_method=f"tcp://{args.master_addr}:{args.master_port}", world_size=args.world_size, rank=args.rank)
