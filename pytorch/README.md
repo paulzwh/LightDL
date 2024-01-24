@@ -18,7 +18,7 @@ pytorch code for training deep learning
 conda create -n pytorch python=3.10
 ```
 
-2. Install [PyTorch](https://pytorch.org/get-started/)
+2. Install PyTorch, see more in [PyTorch - Get Started](https://pytorch.org/get-started/)
 ```shell
 conda install pytorch==1.11.0 torchvision==0.12.0 cudatoolkit=11.3 -c pytorch
 ```
@@ -71,4 +71,4 @@ CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 -
 
 ## Thanks
 
-[GETTING STARTED WITH DISTRIBUTED DATA PARALLEL](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html), [CUDA AUTOMATIC MIXED PRECISION EXAMPLES](https://pytorch.org/docs/stable/notes/amp_examples.html), [Swin-Transformer](https://github.com/microsoft/Swin-Transformer), [Swin-UNETR](https://github.com/Project-MONAI/research-contributions/tree/main/SwinUNETR/BTCV)
+[PyTorch - Tutorials - Getting Started with Distributed Data Parallel](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html), [PyTorch - Docs - CUDA Automatic Mixed Precision examples](https://pytorch.org/docs/stable/notes/amp_examples.html), [Swin-Transformer](https://github.com/microsoft/Swin-Transformer), [Swin-UNETR](https://github.com/Project-MONAI/research-contributions/tree/main/SwinUNETR/BTCV)
