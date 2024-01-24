@@ -145,6 +145,7 @@ def run_training(
         prepare_valid_batch_func: Prepare batch for validation. **Must** use `(batch, args)` as input and output as `{"inputs": ..., "targets": ...}`
         loss_func: Compute loss in training. Will use as `loss_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
         metric_func: Compute metric in validation. Will use as `metric_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
+        scaler: If args.amp is True and scaler is None, will use `torch.cuda.amp.GradScaler()` as default
     """
     logger: Logger = args.logger
 
@@ -159,6 +160,9 @@ def run_training(
             args.no_tensorboard = True
             logger.warning("Tensorboard is not available. `no_tensorboard` has been set.")
 
+    if args.amp and scaler is None:
+        scaler = GradScaler()
+    
     if args.rank == 0:
         valid_metric_max = 0.0
         training_start_time = phase_start_time = time.perf_counter()
