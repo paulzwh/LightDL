@@ -209,21 +209,22 @@ def run_training(
                 else:
                     logger.info(f"Validation ({epoch + 1} /{args.max_epochs} Epochs) metric: {valid_metric:2.6f}, best: {valid_metric_max:2.6f}")
                 
-                save_checkpoint(
-                    save_path=args.output / "model_final.pt",
-                    model=model,
-                    epoch=epoch,
-                    global_step=global_step,
-                    args=args,
-                    metric=valid_metric,
-                    optimizer=optimizer,
-                    scheduler=scheduler,
-                    scaler=scaler
-                )
+                if args.output is not None:
+                    save_checkpoint(
+                        save_path=args.output / "model_final.pt",
+                        model=model,
+                        epoch=epoch,
+                        global_step=global_step,
+                        args=args,
+                        metric=valid_metric,
+                        optimizer=optimizer,
+                        scheduler=scheduler,
+                        scaler=scaler
+                    )
 
-                if is_new_best:
-                    shutil.copyfile(args.output / "model_final.pt", args.output / "model_best.pt")
-                    logger.debug("New best model has been copied to model_best.pt")
+                    if is_new_best:
+                        shutil.copyfile(args.output / "model_final.pt", args.output / "model_best.pt")
+                        logger.debug("New best model has been copied to model_best.pt")
                 
                 phase_end_time = time.perf_counter()
                 logger.info(
