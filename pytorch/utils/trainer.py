@@ -286,9 +286,11 @@ def train_epoch(
         epoch_loss += step_loss
 
         if args.rank == 0 and not args.no_tensorboard:
-            writer.add_scalar("Train/Loss(step)", step_loss, global_step + step)
+            writer.add_scalar("Train/Loss(step)", step_loss, global_step)
 
         step += 1
+        global_step += 1
+        
         if args.rank == 0:
             epoch_iterator.set_description(f"Training ({epoch + 1:d} / {args.max_epochs:d} Epochs) (loss={epoch_loss / step:2.5f})")
         
@@ -299,9 +301,9 @@ def train_epoch(
         scheduler.step()
     
     if args.rank == 0 and not args.no_tensorboard:
-        writer.add_scalar("Train/Loss(epoch)", epoch_loss / step, global_step + step - 1)
+        writer.add_scalar("Train/Loss(epoch)", epoch_loss / step, global_step - 1)
     
-    return global_step + step
+    return global_step
 
 
 @torch.no_grad()
