@@ -5,7 +5,10 @@ pytorch code for training deep learning
 ## TODO
 + [x] distributed trainer
 + [x] getting started & requirements
-+ [ ] usage example
++ [x] usage example with a random dataset
++ [ ] set determinism
++ [ ] gradient accumulation
++ [ ] gradient clipping
 
 ## Getting Started
 
