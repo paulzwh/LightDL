@@ -20,7 +20,11 @@ conda create -n pytorch python=3.10
 conda install pytorch==1.11.0 torchvision==0.12.0 cudatoolkit=11.3 -c pytorch
 ```
 
-This template has been tested using pytorch 1.11.0 (on Ubuntu 16.04) and pytorch 1.13.1 (on Ubuntu 20.04)
+Tested Environments:
+| python | pytorch | cuda | os |
+| ---- | ---- | ---- | ---- |
+| 3.10 | 1.11.0 | 11.3 | Ubuntu 16.04 |
+| 3.10 | 1.13.1 | 11.6 | Ubuntu 20.04 |
 
 3. Install requirements
 ```shell
