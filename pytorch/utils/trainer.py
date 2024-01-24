@@ -144,7 +144,7 @@ def run_training(
         prepare_train_batch_func: Prepare batch for training. **Must** use `(batch, args)` as input and output as `{"inputs": ..., "targets": ...}`
         prepare_valid_batch_func: Prepare batch for validation. **Must** use `(batch, args)` as input and output as `{"inputs": ..., "targets": ...}`
         loss_func: Compute loss in training. Will use as `loss_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
-        metric_func: Compute metric in validation. Will use as `metric_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
+        metric_func: Compute metric in validation. Will use as `metric_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`. **Must** return a Tensor(batch_size), with metrics for each input & target (mean_channel)
         scaler: If args.amp is True and scaler is None, will use `torch.cuda.amp.GradScaler()` as default
     """
     logger: Logger = args.logger
