@@ -416,7 +416,7 @@ def load_checkpoint(
         scaler.load_state_dict(checkpoint["scaler"])
 
     if "epoch" in start_dict.keys() and "epoch" in checkpoint.keys():
-        start_dict["epoch"] = checkpoint["epoch"]
+        start_dict["epoch"] = 1 + checkpoint["epoch"]
     if "global_step" in start_dict.keys() and "global_step" in checkpoint.keys():
         start_dict["global_step"] = checkpoint["global_step"]
     
