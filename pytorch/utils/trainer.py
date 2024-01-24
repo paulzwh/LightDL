@@ -390,7 +390,7 @@ def distributed_all_gather(
 def load_checkpoint(
         checkpoint_path: os.PathLike | str,
         model: nn.Module,
-        args: Namespace,
+        logger: Logger,
         optimizer: optim.Optimizer = None,
         scheduler: optim.lr_scheduler._LRScheduler = None,
         scaler: GradScaler = None,
@@ -399,6 +399,9 @@ def load_checkpoint(
     """
     Args:
         model: necessary
+        optimizer: set to None if not needed
+        scheduler: set to None if not needed
+        scaler: set to None if not needed
         start_dict: support keys `epoch` and `global_step`
     """
     checkpoint: dict = torch.load(checkpoint_path, map_location="cpu")
@@ -409,7 +412,7 @@ def load_checkpoint(
         optimizer.load_state_dict(checkpoint["optimizer"])
     if scheduler is not None and "scheduler" in checkpoint.keys():
         scheduler.load_state_dict(checkpoint["scheduler"])
-    if args.amp and "scaler" in checkpoint.keys():
+    if scaler is not None and "scaler" in checkpoint.keys():
         scaler.load_state_dict(checkpoint["scaler"])
 
     if "epoch" in start_dict.keys() and "epoch" in checkpoint.keys():
@@ -417,8 +420,7 @@ def load_checkpoint(
     if "global_step" in start_dict.keys() and "global_step" in checkpoint.keys():
         start_dict["global_step"] = checkpoint["global_step"]
     
-    logger: Logger = args.logger
-    logger.info(f"Resumed from {args.resume}, metric: {checkpoint['metric']}")
+    logger.info(f"Resumed from {checkpoint_path}, metric: {checkpoint['metric']}")
 
 
 def save_checkpoint(
