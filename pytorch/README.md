@@ -1,4 +1,4 @@
-# Pytorch Template
+# [PyTorch](https://pytorch.org/) Template
 
 pytorch code for training deep learning
 
@@ -18,7 +18,7 @@ pytorch code for training deep learning
 conda create -n pytorch python=3.10
 ```
 
-2. Install [Pytorch](https://pytorch.org/get-started/previous-versions/)
+2. Install [PyTorch](https://pytorch.org/get-started/)
 ```shell
 conda install pytorch==1.11.0 torchvision==0.12.0 cudatoolkit=11.3 -c pytorch
 ```
