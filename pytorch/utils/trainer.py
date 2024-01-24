@@ -31,7 +31,6 @@ def get_parser(description: str = None):
 
     parser.add_argument("--batch_size", default=1, type=int, help="batch size **per GPU** for training")
     parser.add_argument("--max_epochs", default=1, type=int, help="max epochs to train")
-    parser.add_argument("--lr", default=1e-4, type=float, help="training learning rate")
     parser.add_argument("--val_every", default=1, type=int, help="validation frequency (epoch)")
     parser.add_argument("--scheduler_type", default="epoch", choices=["epoch", "iteration"], type=str, help="type of lr scheduler")
     
