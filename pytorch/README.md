@@ -2,6 +2,11 @@
 
 pytorch code for training deep learning
 
+## TODO
++ [x] distributed trainer
++ [x] getting started & requirements
++ [ ] usage example
+
 ## Getting Started
 
 1. Create [conda](https://docs.conda.io/) environment, `python>=3.10`
