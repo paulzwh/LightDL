@@ -69,6 +69,16 @@ CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 -
 CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --amp --output ./output/example_$(date "+%y%m%d%H%M%S") --resume ./output/example_240124193738/model_best.pt
 ```
 
++ Other args
+
+```bash
+--nnodes 1                 # number of nodes for distributed training
+--node_rank 0              # node rank for distributed training
+--master_addr "localhost"  # master address for init distributed
+--master_port "62674"      # master address for init distributed
+--workers 4                # number of workers for dataloader
+```
+
 ## Thanks
 
 [PyTorch - Tutorials - Getting Started with Distributed Data Parallel](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html), [PyTorch - Docs - CUDA Automatic Mixed Precision examples](https://pytorch.org/docs/stable/notes/amp_examples.html), [Swin-Transformer](https://github.com/microsoft/Swin-Transformer), [Swin-UNETR](https://github.com/Project-MONAI/research-contributions/tree/main/SwinUNETR/BTCV)
