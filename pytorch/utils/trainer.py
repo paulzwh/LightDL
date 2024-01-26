@@ -214,7 +214,7 @@ def run_training(
                         save_path=args.output / "model_final.pt",
                         model=model,
                         epoch=epoch,
-                        global_step=global_step,
+                        global_step=global_step - 1,
                         args=args,
                         metric=valid_metric,
                         optimizer=optimizer,
@@ -421,7 +421,7 @@ def load_checkpoint(
     if "epoch" in start_dict.keys() and "epoch" in checkpoint.keys():
         start_dict["epoch"] = 1 + checkpoint["epoch"]
     if "global_step" in start_dict.keys() and "global_step" in checkpoint.keys():
-        start_dict["global_step"] = checkpoint["global_step"]
+        start_dict["global_step"] = 1 + checkpoint["global_step"]
     
     logger.info(f"Resumed from {checkpoint_path}, metric: {checkpoint['metric']}")
 
