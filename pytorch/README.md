@@ -6,7 +6,7 @@ pytorch code for training deep learning
 + [x] distributed trainer
 + [x] getting started & requirements
 + [x] usage example with a random dataset
-+ [ ] set determinism
++ [x] set determinism
 + [ ] gradient accumulation
 + [ ] gradient clipping
 
@@ -46,6 +46,9 @@ pip install -r requirements_optional.txt
 # from scrach
 CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --amp --output ./output/example_$(date "+%y%m%d%H%M%S")
 
+# from scrach with determinism
+CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --seed 3407 --amp --output ./output/example_$(date "+%y%m%d%H%M%S")
+
 # from scrach without AMP
 CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --output ./output/example_$(date "+%y%m%d%H%M%S")
 
@@ -54,6 +57,9 @@ CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --v
 
 # resume from checkpoint
 CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --amp --output ./output/example_$(date "+%y%m%d%H%M%S") --resume ./output/example_240124194132/model_best.pt
+
+# resume from checkpoint with determinism
+CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --amp --output ./output/example_$(date "+%y%m%d%H%M%S") --resume ./output/example_240124194132/model_best.pt --seed 3407 # must set the same seed
 ```
 
 + Train on multi GPUs (distributed)
@@ -61,6 +67,9 @@ CUDA_VISIBLE_DEVICES=0 python train_example.py --batch_size 2 --max_epochs 8 --v
 ```bash
 # from scrach
 CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --amp --output ./output/example_$(date "+%y%m%d%H%M%S")
+
+# from scrach with determinism
+CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --seed 3407 --amp --output ./output/example_$(date "+%y%m%d%H%M%S")
 
 # from scrach without AMP
 CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --output ./output/example_$(date "+%y%m%d%H%M%S")
@@ -70,6 +79,9 @@ CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 -
 
 # resume from checkpoint
 CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --amp --output ./output/example_$(date "+%y%m%d%H%M%S") --resume ./output/example_240124193738/model_best.pt
+
+# resume from checkpoint with determinism
+CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --amp --output ./output/example_$(date "+%y%m%d%H%M%S") --resume ./output/example_240124193738/model_best.pt --seed 3407 # must set the same seed
 ```
 
 + Other args
