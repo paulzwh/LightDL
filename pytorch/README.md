@@ -65,6 +65,9 @@ CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 -
 # from scrach without AMP
 CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --output ./output/example_$(date "+%y%m%d%H%M%S")
 
+# without output (DEBUG only)
+CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --amp --distributed
+
 # resume from checkpoint
 CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 --val_every 1 --distributed --amp --output ./output/example_$(date "+%y%m%d%H%M%S") --resume ./output/example_240124193738/model_best.pt
 ```
