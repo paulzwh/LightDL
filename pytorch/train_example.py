@@ -31,7 +31,11 @@ def main_worker(local_rank, args):
     init_main_worker(local_rank, args)
     # logger has been define in init_main_worker
     logger: Logger = args.logger
-    
+
+    if args.seed is None:
+        # when determinism is not needed, enable it usually leads to faster runtime if input size is always the same
+        torch.backends.cudnn.benchmark = True
+
     # define your dataset
     train_dataset = ToyDataset()
     valid_dataset = ToyDataset()
