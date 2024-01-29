@@ -1,8 +1,9 @@
-import os, time, datetime, shutil
+import os, time, datetime, shutil, random
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Sequence, Callable, Any, Dict
 
+import numpy as np
 import torch
 from torch import nn, optim, Tensor
 from torch.utils.data import Dataset, DataLoader, DistributedSampler
@@ -43,6 +44,8 @@ def get_parser(description: str = None):
     parser.add_argument("--amp", action="store_true", default=False, help="use automatic mixed precision (amp) for training")
     parser.add_argument("--workers", default=4, type=int, help="number of workers for dataloader")
 
+    parser.add_argument("--seed", default=None, type=int, help="random seed for setting determinism")
+
     return parser
 
 
@@ -80,16 +83,58 @@ def init_main_worker(local_rank: int, args: Namespace):
     """
     if args.distributed:
         args.rank = args.node_rank * args.ngpus_per_node + local_rank
+        if args.seed is not None:
+            set_determinism(args.seed + args.rank)
         dist.init_process_group(backend="nccl", init_method=f"tcp://{args.master_addr}:{args.master_port}", world_size=args.world_size, rank=args.rank)
         args.local_rank = local_rank
         torch.cuda.set_device(args.local_rank)
     else:
         args.rank = args.local_rank = local_rank
+        if args.seed is not None:
+            set_determinism(args.seed + args.rank)
     
     logger = create_logger(name=f"Rank{args.rank}", output_path=(args.output / f"log_rank{args.rank}.log") if args.output is not None else None)
     args.logger = logger
 
     logger.info(f"Node {args.node_rank}, Local Rank {args.local_rank}: {torch.cuda.get_device_name(args.local_rank)}")
+
+    if args.seed is not None:
+        logger.info(f"Determinism set SEED {args.seed + args.rank}")
+
+
+MAX_SEED = np.iinfo(np.uint32).max + 1  # 2**32
+
+
+def set_determinism(seed: int, use_deterministic_algorithms: bool | None = None):
+    
+    seed = int(seed) % MAX_SEED
+    
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
+    torch.manual_seed(seed)
+    
+    random.seed(seed)
+    np.random.seed(seed)
+
+    torch.backends.cudnn.benchmark = False
+
+    if use_deterministic_algorithms is not None:
+        if hasattr(torch, "use_deterministic_algorithms"):
+            torch.use_deterministic_algorithms(use_deterministic_algorithms)
+    
+    # https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility
+    if torch.version.cuda >= "10.2":
+        # ":16:8" (may limit overall performance) or ":4096:8" (will increase library footprint in GPU memory by approximately 24MiB)
+        os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+
+    torch.backends.cudnn.deterministic = True
+
+
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % MAX_SEED
+
+    random.seed(worker_seed)
+    np.random.seed(worker_seed)
 
 
 def get_loader(
@@ -97,7 +142,7 @@ def get_loader(
         valid_dataset: Dataset,
         args: Namespace
 ):
-    train_sampler = DistributedSampler(train_dataset, shuffle=True) if args.distributed else None
+    train_sampler = DistributedSampler(train_dataset, shuffle=True, seed=args.seed if args.seed is not None else 0) if args.distributed else None
     valid_sampler = DistributedSampler(valid_dataset, shuffle=False) if args.distributed else None
 
     train_loader = DataLoader(
@@ -107,6 +152,8 @@ def get_loader(
             num_workers=args.workers,
             sampler=train_sampler,
             pin_memory=True,
+            worker_init_fn=seed_worker if args.seed is not None else None,
+            generator=torch.default_generator if args.seed is not None else None
         )
     valid_loader = DataLoader(
             valid_dataset,
