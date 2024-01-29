@@ -96,4 +96,4 @@ CUDA_VISIBLE_DEVICES=0,1 python train_example.py --batch_size 2 --max_epochs 8 -
 
 ## Thanks
 
-[PyTorch - Tutorials - Getting Started with Distributed Data Parallel](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html), [PyTorch - Docs - CUDA Automatic Mixed Precision examples](https://pytorch.org/docs/stable/notes/amp_examples.html), [Swin-Transformer](https://github.com/microsoft/Swin-Transformer), [Swin-UNETR](https://github.com/Project-MONAI/research-contributions/tree/main/SwinUNETR/BTCV)
+[PyTorch - Tutorials - Getting Started with Distributed Data Parallel](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html), [PyTorch - Docs - CUDA Automatic Mixed Precision examples](https://pytorch.org/docs/stable/notes/amp_examples.html), [Pytorch - Docs - Reproducibility](https://pytorch.org/docs/stable/notes/randomness.html), [Swin-Transformer](https://github.com/microsoft/Swin-Transformer), [Swin-UNETR](https://github.com/Project-MONAI/research-contributions/tree/main/SwinUNETR/BTCV)
