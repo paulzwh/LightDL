@@ -14,7 +14,7 @@ from dataset_toy import ToyDataset
 
 def get_args():
     # get parser with necessary args for trainer
-    parser = get_parser(description="Brain-loc training coarse seg")
+    parser = get_parser(description="Toy training")
 
     # add args you need below
 
