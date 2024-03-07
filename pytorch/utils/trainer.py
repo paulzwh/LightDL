@@ -31,8 +31,9 @@ def get_parser(description: str = None):
     parser.add_argument("--no_tensorboard", action="store_true", default=False, help="use if tensorboard is not available or not needed")
 
     parser.add_argument("--batch_size", default=1, type=int, help="batch size **per GPU** for training")
+    parser.add_argument("--val_batch_size", default=None, type=int, help="batch size **per GPU** for validation, default to `batch_size`")
     parser.add_argument("--max_epochs", default=1, type=int, help="max epochs to train")
-    parser.add_argument("--val_every", default=1, type=int, help="validation frequency (epoch)")
+    parser.add_argument("--val_interval", default=1, type=int, help="validation frequency (epoch)")
     parser.add_argument("--scheduler_type", default="epoch", choices=["epoch", "iteration"], type=str, help="type of lr scheduler")
     
     parser.add_argument("--distributed", action="store_true", default=False, help="start distributed training")
@@ -60,6 +61,9 @@ def main_runner(main_worker: Callable[[int, Namespace], Any], args: Namespace):
     if args.output is not None:
         args.output = Path(args.output)
         args.output.mkdir(parents=True, exist_ok=True)
+    
+    if args.val_batch_size is None:
+        args.val_batch_size = args.batch_size
 
     if args.distributed:
         args.ngpus_per_node = torch.cuda.device_count()
@@ -233,7 +237,7 @@ def run_training(
             global_step=global_step
         )
 
-        if (epoch + 1) % args.val_every == 0 or (epoch + 1) == args.max_epochs:
+        if (epoch + 1) % args.val_interval == 0 or (epoch + 1) == args.max_epochs:
             if args.distributed:
                 dist.barrier()
             
@@ -275,7 +279,7 @@ def run_training(
                 
                 phase_end_time = time.perf_counter()
                 logger.info(
-                    f"Total time used: {datetime.timedelta(seconds=int(phase_end_time - training_start_time))}; Expected time left: {datetime.timedelta(seconds=int((phase_end_time - phase_start_time) / args.val_every * (args.max_epochs - epoch - 1)))}"
+                    f"Total time used: {datetime.timedelta(seconds=int(phase_end_time - training_start_time))}; Expected time left: {datetime.timedelta(seconds=int((phase_end_time - phase_start_time) / args.val_interval * (args.max_epochs - epoch - 1)))}"
                 )
                 phase_start_time = phase_end_time
 
