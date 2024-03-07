@@ -1,20 +1,24 @@
-import os, time, datetime, shutil, random
+import os, time, datetime, shutil
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Sequence, Callable, Any, Dict
 
-import numpy as np
 import torch
 from torch import nn, optim, Tensor
-from torch.utils.data import Dataset, DistributedSampler
 from torch.utils.tensorboard import SummaryWriter
 from torch.cuda.amp import GradScaler, autocast
 import torch.distributed as dist
 import torch.multiprocessing as mp
+
+from monai.data import Dataset, DataLoader, DistributedSampler, decollate_batch
+from monai.data.utils import worker_init_fn
+from monai.utils.misc import set_determinism
+from monai.utils.enums import MetricReduction
+from monai.inferers import Inferer
+from monai.metrics import CumulativeIterationMetric
+from monai.transforms import Transform
+
 from tqdm import tqdm
-
-from monai.data import DataLoader
-
 from logging import Logger
 from .logger import create_logger
 from .misc import save_args
@@ -108,41 +112,6 @@ def init_main_worker(local_rank: int, args: Namespace):
         logger.info(f"Determinism set SEED {args.seed + args.rank}")
 
 
-MAX_SEED = np.iinfo(np.uint32).max + 1  # 2**32
-
-
-def set_determinism(seed: int, use_deterministic_algorithms: bool | None = None):
-    
-    seed = int(seed) % MAX_SEED
-    
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-    torch.manual_seed(seed)
-    
-    random.seed(seed)
-    np.random.seed(seed)
-
-    torch.backends.cudnn.benchmark = False
-
-    if use_deterministic_algorithms is not None:
-        if hasattr(torch, "use_deterministic_algorithms"):
-            torch.use_deterministic_algorithms(use_deterministic_algorithms)
-    
-    # https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility
-    if torch.version.cuda >= "10.2":
-        # ":16:8" (may limit overall performance) or ":4096:8" (will increase library footprint in GPU memory by approximately 24MiB)
-        os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
-
-    torch.backends.cudnn.deterministic = True
-
-
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % MAX_SEED
-
-    random.seed(worker_seed)
-    np.random.seed(worker_seed)
-
-
 def get_loader(
         train_dataset: Dataset,
         valid_dataset: Dataset,
@@ -158,7 +127,7 @@ def get_loader(
             num_workers=args.workers,
             sampler=train_sampler,
             pin_memory=True,
-            worker_init_fn=seed_worker if args.seed is not None else None,
+            worker_init_fn=worker_init_fn if args.seed is not None else None,
             generator=torch.default_generator if args.seed is not None else None
         )
     valid_loader = DataLoader(
@@ -185,19 +154,21 @@ def run_training(
         prepare_train_batch_func: Callable[[Any, Namespace], Dict[str, Any]],
         prepare_valid_batch_func: Callable[[Any, Namespace], Dict[str, Any]],
         loss_func: nn.modules.loss._Loss,
-        metric_func: Callable[[Tensor, Tensor], Tensor],
+        metric_func: CumulativeIterationMetric,
         args: Namespace,
         scheduler: optim.lr_scheduler._LRScheduler = None,
         scaler: GradScaler = None,
         start_epoch: int = 0,
-        global_step: int = 0
+        global_step: int = 0,
+        model_inferer: Inferer = None,
+        post_label: Transform = None,
+        post_pred: Transform = None,
 ):
     """
     Args:
         prepare_train_batch_func: Prepare batch for training. **Must** use `(batch, args)` as input and output as `{"inputs": ..., "targets": ...}`
         prepare_valid_batch_func: Prepare batch for validation. **Must** use `(batch, args)` as input and output as `{"inputs": ..., "targets": ...}`
         loss_func: Compute loss in training. Will use as `loss_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
-        metric_func: Compute metric in validation. Will use as `metric_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`. **Must** return a Tensor(batch_size), with metrics for each input & target (mean_channel)
         scaler: If args.amp is True and scaler is None, will use `torch.cuda.amp.GradScaler()` as default
     """
     logger: Logger = args.logger
@@ -248,7 +219,10 @@ def run_training(
                 valid_loader=valid_loader,
                 prepare_batch_func=prepare_valid_batch_func,
                 metric_func=metric_func,
-                args=args
+                args=args,
+                model_inferer=model_inferer,
+                post_label=post_label,
+                post_pred=post_pred
             )
             
             if args.rank == 0:
@@ -365,8 +339,11 @@ def valid_epoch(
     model: nn.Module,
     valid_loader: DataLoader,
     prepare_batch_func: Callable[[Any, Namespace], Dict[str, Any]],
-    metric_func: Callable[[Tensor, Tensor], Tensor],
-    args: Namespace
+    metric_func: CumulativeIterationMetric,
+    args: Namespace,
+    model_inferer: Inferer = None,
+    post_label: Transform = None,
+    post_pred: Transform = None,
 ):
     model.eval()
     
@@ -382,9 +359,17 @@ def valid_epoch(
         prepared_batch = prepare_batch_func(batch, args)
 
         with autocast(enabled=args.amp):
-            batch_preds = model(prepared_batch["inputs"])
-
-        metrics = metric_func(batch_preds, prepared_batch["targets"])
+            if model_inferer is not None:
+                batch_preds = model_inferer(prepared_batch["inputs"], model)
+            else:
+                batch_preds = model(prepared_batch["inputs"])
+        
+        valid_label = [post_label(val_label_tensor) for val_label_tensor in decollate_batch(prepared_batch["targets"])]
+        valid_pred = [post_pred(val_pred_tensor) for val_pred_tensor in decollate_batch(batch_preds)]
+        
+        metric_func(y_pred=valid_pred, y=valid_label)
+        metrics = metric_func.aggregate(reduction=MetricReduction.MEAN_BATCH)
+        metric_func.reset()
 
         if args.distributed:
             is_valid_list = [idx * args.batch_size + j < args.valid_valid_length for j in range(metrics.shape[0])]
