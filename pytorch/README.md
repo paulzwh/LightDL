@@ -1,6 +1,6 @@
 # [PyTorch](https://pytorch.org/) Template
 
-pytorch code for training deep learning
+PyTorch code for training deep learning.
 
 ## TODO
 + [x] distributed trainer
@@ -20,15 +20,8 @@ conda create -n pytorch python=3.10
 
 2. Install PyTorch, see more in [PyTorch - Get Started](https://pytorch.org/get-started/)
 ```shell
-conda install pytorch==1.11.0 torchvision==0.12.0 cudatoolkit=11.3 -c pytorch
+conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 -c pytorch -c nvidia
 ```
-
-Tested Environments:
-
-| python | pytorch | cuda | os |
-| ---- | ---- | ---- | ---- |
-| 3.10 | 1.11.0 | 11.3 | Ubuntu 16.04 |
-| 3.10 | 1.13.1 | 11.6 | Ubuntu 20.04 |
 
 3. Install requirements
 ```shell
