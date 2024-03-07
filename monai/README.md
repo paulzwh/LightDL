@@ -1,6 +1,6 @@
 # [MONAI](https://docs.monai.io/) Template
 
-MONAI code based on pure [Pytorch Template](../pytorch) for training deep learning.
+MONAI template modified from our pure [Pytorch Template](../pytorch) for training of medical deep learning.
 
 ## Getting Started
 
@@ -27,3 +27,7 @@ pip install -r requirements.txt
 # Optional
 pip install -r requirements_optional.txt
 ```
+
+## Thanks
++ [Swin-UNETR](https://github.com/Project-MONAI/research-contributions/tree/main/SwinUNETR/BTCV)
++ [Project-MONAI/tutorials](https://github.com/Project-MONAI/tutorials)
