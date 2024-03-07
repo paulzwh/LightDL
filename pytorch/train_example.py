@@ -1,6 +1,5 @@
 import torch
 from torch import nn, optim, Tensor
-import torch.nn.functional as F
 from torch.cuda.amp import GradScaler
 import torch.distributed as dist
 from logging import Logger
@@ -73,7 +72,8 @@ def main_worker(local_rank, args):
 
     if args.distributed:
         # convert when BatchNorm is used
-        model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
+        if "norm_name" in args and args.norm_name == "batch":
+            model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
         model = nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
 
     run_training(
