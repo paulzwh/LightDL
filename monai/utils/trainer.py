@@ -129,7 +129,7 @@ def get_loader(
         )
     valid_loader = DataLoader(
             valid_dataset,
-            batch_size=args.batch_size,
+            batch_size=args.val_batch_size,
             shuffle=False,
             num_workers=args.workers,
             sampler=valid_sampler,
