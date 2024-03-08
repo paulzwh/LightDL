@@ -37,7 +37,7 @@ def get_parser(description: str = None):
     parser.add_argument("--no_tensorboard", action="store_true", default=False, help="use if tensorboard is not available or not needed")
 
     parser.add_argument("--batch_size", default=1, type=int, help="batch size **per GPU** for training")
-    parser.add_argument("--val_batch_size", default=None, type=int, help="batch size **per GPU** for validation, default to `batch_size`")
+    parser.add_argument("--val_batch_size", default=1, type=int, help="batch size **per GPU** for validation")
     parser.add_argument("--max_epochs", default=1, type=int, help="max epochs to train")
     parser.add_argument("--val_interval", default=1, type=int, help="validation frequency (epoch)")
     parser.add_argument("--scheduler_type", default="epoch", choices=["epoch", "iteration"], type=str, help="type of lr scheduler")
@@ -67,9 +67,6 @@ def main_runner(main_worker: Callable[[int, Namespace], Any], args: Namespace):
     if args.output is not None:
         args.output = Path(args.output)
         args.output.mkdir(parents=True, exist_ok=True)
-    
-    if args.val_batch_size is None:
-        args.val_batch_size = args.batch_size
 
     if args.distributed:
         args.ngpus_per_node = torch.cuda.device_count()
