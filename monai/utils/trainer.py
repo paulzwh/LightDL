@@ -16,7 +16,6 @@ from monai.utils.misc import set_determinism
 from monai.utils.enums import MetricReduction
 from monai.inferers import Inferer
 from monai.metrics import CumulativeIterationMetric
-from monai.transforms import Transform
 
 from tqdm import tqdm
 from logging import Logger
@@ -158,8 +157,7 @@ def run_training(
         start_epoch: int = 0,
         global_step: int = 0,
         model_inferer: Inferer = None,
-        post_label: Transform = None,
-        post_pred: Transform = None,
+        post_pred_func: Callable[[Tensor, Namespace], Tensor] = None
 ):
     """
     Args:
@@ -167,6 +165,7 @@ def run_training(
         prepare_valid_batch_func: Prepare batch for validation. **Must** use `(batch, args)` as input and output as `{"inputs": ..., "targets": ...}`
         loss_func: Compute loss in training. Will use as `loss_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
         scaler: If args.amp is True and scaler is None, will use `torch.cuda.amp.GradScaler()` as default
+        post_pred_func: Post-process the output of model. **Must** use `(pred, args)` as input and output the processed `pred`, set to `None` if no need to post-process
     """
     logger: Logger = args.logger
 
@@ -218,8 +217,7 @@ def run_training(
                 metric_func=metric_func,
                 args=args,
                 model_inferer=model_inferer,
-                post_label=post_label,
-                post_pred=post_pred
+                post_pred_func=post_pred_func
             )
             
             if args.rank == 0:
@@ -339,8 +337,7 @@ def valid_epoch(
     metric_func: CumulativeIterationMetric,
     args: Namespace,
     model_inferer: Inferer = None,
-    post_label: Transform = None,
-    post_pred: Transform = None,
+    post_pred_func: Callable[[Tensor, Namespace], Tensor] = None
 ):
     model.eval()
     
@@ -361,10 +358,10 @@ def valid_epoch(
             else:
                 batch_preds = model(prepared_batch["inputs"])
         
-        valid_label = [post_label(val_label_tensor) for val_label_tensor in decollate_batch(prepared_batch["targets"])]
-        valid_pred = [post_pred(val_pred_tensor) for val_pred_tensor in decollate_batch(batch_preds)]
+        if post_pred_func is not None:
+            batch_preds = post_pred_func(batch_preds, args)
         
-        metric_func(y_pred=valid_pred, y=valid_label)
+        metric_func(y_pred=batch_preds, y=prepared_batch["targets"])
         metrics = metric_func.aggregate(reduction=MetricReduction.MEAN_BATCH)
         metric_func.reset()
 
