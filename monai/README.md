@@ -1,6 +1,11 @@
 # [MONAI](https://docs.monai.io/) Template
 
-MONAI template modified from our pure [Pytorch Template](../pytorch) for training of medical deep learning.
+MONAI template for training of medical deep learning, modified from our pure [Pytorch Template](../pytorch).
+
+## TODO
++ [x] copy from [Pytorch Template](../pytorch) and modify Dataloader
++ [x] modify `trainer.py` to MONAI-based implementation
++ [ ] usage example
 
 ## Getting Started
 
