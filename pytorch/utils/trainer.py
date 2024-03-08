@@ -188,7 +188,8 @@ def run_training(
         scheduler: optim.lr_scheduler._LRScheduler = None,
         scaler: GradScaler = None,
         start_epoch: int = 0,
-        global_step: int = 0
+        global_step: int = 0,
+        post_pred_func: Callable[[Tensor, Namespace], Tensor] = None
 ):
     """
     Args:
@@ -197,6 +198,7 @@ def run_training(
         loss_func: Compute loss in training. Will use as `loss_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`
         metric_func: Compute metric in validation. Will use as `metric_func(model(prepared_batch["inputs"]), prepared_batch["targets"])`. **Must** return a Tensor(batch_size), with metrics for each input & target (mean_channel)
         scaler: If args.amp is True and scaler is None, will use `torch.cuda.amp.GradScaler()` as default
+        post_pred_func: Post-process the output of model. **Must** use `(pred, args)` as input and output the processed `pred`, set to `None` if no need to post-process
     """
     logger: Logger = args.logger
 
@@ -246,7 +248,8 @@ def run_training(
                 valid_loader=valid_loader,
                 prepare_batch_func=prepare_valid_batch_func,
                 metric_func=metric_func,
-                args=args
+                args=args,
+                post_pred_func=post_pred_func
             )
             
             if args.rank == 0:
@@ -364,7 +367,8 @@ def valid_epoch(
     valid_loader: DataLoader,
     prepare_batch_func: Callable[[Any, Namespace], Dict[str, Any]],
     metric_func: Callable[[Tensor, Tensor], Tensor],
-    args: Namespace
+    args: Namespace,
+    post_pred_func: Callable[[Tensor, Namespace], Tensor] = None
 ):
     model.eval()
     
@@ -381,6 +385,9 @@ def valid_epoch(
 
         with autocast(enabled=args.amp):
             batch_preds = model(prepared_batch["inputs"])
+        
+        if post_pred_func is not None:
+            batch_preds = post_pred_func(batch_preds, args)
 
         metrics = metric_func(batch_preds, prepared_batch["targets"])
 

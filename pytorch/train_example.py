@@ -89,7 +89,8 @@ def main_worker(local_rank, args):
         scheduler=scheduler,
         scaler=scaler,
         start_epoch=start_step["epoch"],
-        global_step=start_step["global_step"]
+        global_step=start_step["global_step"],
+        post_pred_func=post_pred_func
     )
 
     if args.distributed:
@@ -116,6 +117,11 @@ def prepare_valid_batch_func(batch, args):
     labels = labels.to(args.local_rank, dtype=torch.long)
 
     return {"inputs": images, "targets": labels}
+
+
+def post_pred_func(pred, args):
+    # example. directly use `None` in practice if no need to post-process
+    return pred
 
 
 def toy_acc(inputs: Tensor, targets: Tensor):
