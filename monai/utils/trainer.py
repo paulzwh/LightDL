@@ -10,7 +10,7 @@ from torch.cuda.amp import GradScaler, autocast
 import torch.distributed as dist
 import torch.multiprocessing as mp
 
-from monai.data import Dataset, DataLoader, DistributedSampler, decollate_batch
+from monai.data import Dataset, DataLoader, DistributedSampler
 from monai.data.utils import worker_init_fn
 from monai.utils.misc import set_determinism
 from monai.utils.enums import MetricReduction
