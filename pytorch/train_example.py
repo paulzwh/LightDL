@@ -19,7 +19,7 @@ def get_args():
 
     # for example
     parser.add_argument("--lr", default=1e-4, type=float, help="training learning rate")
-    parser.add_argument('--resume', type=str, default=None, help='Training checkpoint path for resume')
+    parser.add_argument("--resume", type=str, default=None, help="training checkpoint path for resume")
 
     return parser.parse_args()
 
