@@ -32,7 +32,7 @@ def get_parser(description: str = None):
     """
     parser = ArgumentParser(description=description)
     
-    parser.add_argument("--output", default=None, type=Path, help="path of output directory")
+    parser.add_argument("--output", default=None, type=str, help="path of output directory")
     parser.add_argument("--no_tensorboard", action="store_true", default=False, help="use if tensorboard is not available or not needed")
 
     parser.add_argument("--batch_size", default=1, type=int, help="batch size **per GPU** for training")
@@ -64,6 +64,7 @@ def main_runner(main_worker: Callable[[int, Namespace], Any], args: Namespace):
     assert torch.cuda.is_available()
 
     if args.output is not None:
+        args.output = Path(args.output)
         args.output.mkdir(parents=True, exist_ok=True)
 
     if args.distributed:
