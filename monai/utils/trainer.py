@@ -283,7 +283,7 @@ def train_epoch(
             writer.add_scalar("Train/LR", optimizer.param_groups[0]["lr"], global_step)
     
     for batch in epoch_iterator:
-        if scheduler is not None and args.scheduler_type == "iteration":
+        if args.rank == 0 and not args.no_tensorboard and scheduler is not None and args.scheduler_type == "iteration":
             writer.add_scalar("Train/LR", optimizer.param_groups[0]["lr"], global_step)
 
         optimizer.zero_grad(set_to_none=True)
