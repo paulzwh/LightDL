@@ -87,6 +87,7 @@ def init_main_worker(local_rank: int, args: Namespace):
     """
     if args.distributed:
         args.rank = args.node_rank * args.ngpus_per_node + local_rank
+        mp.set_start_method("fork", force=True)
         if args.seed is not None:
             set_determinism(args.seed + args.rank)
         dist.init_process_group(backend="nccl", init_method=f"tcp://{args.master_addr}:{args.master_port}", world_size=args.world_size, rank=args.rank)
