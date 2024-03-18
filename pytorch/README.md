@@ -26,9 +26,6 @@ conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 -c pytorch -
 3. Install requirements
 ```shell
 pip install -r requirements.txt
-
-# Optional
-pip install -r requirements_optional.txt
 ```
 
 # Training

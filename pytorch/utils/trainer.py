@@ -28,7 +28,7 @@ def get_parser(description: str = None):
     parser = ArgumentParser(description=description)
     
     parser.add_argument("--output", default=None, type=str, help="path of output directory")
-    parser.add_argument("--no_tensorboard", action="store_true", default=False, help="use if tensorboard is not available or not needed")
+    parser.add_argument("--no_tensorboard", action="store_true", default=False, help="use if tensorboard log is not needed")
 
     parser.add_argument("--batch_size", default=1, type=int, help="batch size **per GPU** for training")
     parser.add_argument("--val_batch_size", default=None, type=int, help="batch size **per GPU** for validation, default to `batch_size`")
