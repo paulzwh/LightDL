@@ -2,6 +2,11 @@
 
 PyTorch code for training deep learning.
 
+|         | verison |
+| ------- | ------- |
+| python  | 3.10    |
+| pytorch | 1.13.1  |
+
 ## TODO
 + [x] distributed trainer
 + [x] getting started & requirements
@@ -12,18 +17,19 @@ PyTorch code for training deep learning.
 
 ## Getting Started
 
-1. Create [conda](https://docs.conda.io/) environment, `python>=3.10`
+1. Create [conda](https://docs.conda.io/) environment,
 
 ```shell
-conda create -n pytorch python=3.10
+conda create -n torch113 python=3.10
+conda activate torch113
 ```
 
-2. Install PyTorch, see more in [PyTorch - Get Started](https://pytorch.org/get-started/)
+2. Install PyTorch, see more in [PyTorch - Get Started](https://pytorch.org/get-started/),
 ```shell
 conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 -c pytorch -c nvidia
 ```
 
-3. Install requirements
+3. Install requirements,
 ```shell
 pip install -r requirements.txt
 ```
