@@ -26,7 +26,7 @@ conda activate torch113
 
 2. Install PyTorch, see more in [PyTorch - Get Started](https://pytorch.org/get-started/),
 ```shell
-conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 -c pytorch -c nvidia
+conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 numpy=1.26 -c pytorch -c nvidia
 ```
 
 3. Install requirements,

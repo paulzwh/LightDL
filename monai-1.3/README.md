@@ -9,7 +9,7 @@ MONAI template for training of medical deep learning, modified from our pure [Py
 
 ## Getting Started
 
-1. Create [conda](https://docs.conda.io/) environment, `python>=3.10`
+1. Create [conda](https://docs.conda.io/) environment
 
 ```shell
 conda create -n pytorch python=3.10
@@ -17,7 +17,7 @@ conda create -n pytorch python=3.10
 
 2. Install PyTorch, see more in [PyTorch - Get Started](https://pytorch.org/get-started/)
 ```shell
-conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 -c pytorch -c nvidia
+conda install pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.6 numpy=1.26 -c pytorch -c nvidia
 ```
 
 3. Install MONAI, see more in [MONAI - Installation Guide](https://docs.monai.io/en/stable/installation.html)
