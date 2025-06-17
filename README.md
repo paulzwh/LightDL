@@ -7,9 +7,9 @@ It is expected that you can easily and intuitively modify and debug on these tem
 
 ### In Process:
 
-+ Pytorch ([1.13](./pytorch-1.13/README.md))
-+ MONAI ([1.3](./monai-1.3/README.md))
-+ Paddle ([2.6](./paddle-2.6/README.md))
++ Pytorch ([1.13](./pytorch-1.13/))
++ MONAI ([1.3](./monai-1.3/))
++ Paddle ([2.6](./paddle-2.6/))
 
 ### Planning:
 
